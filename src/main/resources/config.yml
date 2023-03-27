@@ -1,0 +1,67 @@
+start-npc:
+  skin: WhitehatD
+  location:
+    world: world
+    x: 4
+    y: 93
+    z: 0
+    yaw: 0
+
+game:
+  victory-commands: #will be executed on the winning team
+    - "give %player% golden_apple 1"
+  lobby:
+    x: 242
+    y: 95
+    z: 6
+
+  spectator:
+    spawn:
+      x: -1
+      y: 112
+      z: 22
+      yaw: 0
+
+  red-team:
+    area:
+      pos1:
+        x: 11
+        y: 100
+        z: 42
+      pos2:
+        x: -14
+        y: 100
+        z: 25
+    facing: -180
+    fallback-spawn:
+      x: -2
+      y: 100
+      z: 42
+      yaw: 180
+
+  blue-team:
+    area:
+      pos1:
+        x: -14
+        y: 100
+        z: 22
+      pos2:
+        x: 11
+        y: 100
+        z: 5
+    facing: 0
+    fallback-spawn:
+      x: -2
+      y: 100
+      z: 5
+      yaw: 0
+
+
+locations:
+  spawn:
+    world: world
+    x: 0
+    y: 93
+    z: 0
+    yaw: -90
+

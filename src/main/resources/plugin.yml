@@ -1,0 +1,7 @@
+main: me.whitehatd.Dodgeball.Core
+version: 1.0
+author: WhitehatD
+name: Dodgeball
+depend: [Citizens, PlaceholderAPI]
+description: Test for SpaceDelta
+api-version: 1.17
