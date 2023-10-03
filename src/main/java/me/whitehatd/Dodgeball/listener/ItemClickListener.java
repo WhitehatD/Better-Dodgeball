@@ -43,8 +43,10 @@ public class ItemClickListener extends ListenerBase {
 
 
         if(game.getCreator().getUniqueId().equals(player.getUniqueId())){
-            if(nbtItem.getString("usage").equals("destroy"))
+            if(nbtItem.getString("usage").equals("destroy")) {
                 game.destroy();
+                return;
+            }
 
             if(nbtItem.getString("usage").equals("start")){
                 if(game.getBlueTeam().size() != game.getRedTeam().size()){

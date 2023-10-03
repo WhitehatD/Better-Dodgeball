@@ -14,11 +14,11 @@ public enum FixedLocations {
     private final double x, y, z, yaw;
 
     FixedLocations(String configSection){
-        this.x = Core.INSTANCE.getConfig().getDouble(configSection + ".x");
-        this.y = Core.INSTANCE.getConfig().getDouble(configSection + ".y");
-        this.z = Core.INSTANCE.getConfig().getDouble(configSection + ".z");
-        this.yaw = Core.INSTANCE.getConfig().getDouble(configSection + ".yaw");
-        this.worldName = Core.INSTANCE.getConfig().getString(configSection + ".world");
+        this.x = Core.getInstance().getConfig().getDouble(configSection + ".x");
+        this.y = Core.getInstance().getConfig().getDouble(configSection + ".y");
+        this.z = Core.getInstance().getConfig().getDouble(configSection + ".z");
+        this.yaw = Core.getInstance().getConfig().getDouble(configSection + ".yaw");
+        this.worldName = Core.getInstance().getConfig().getString(configSection + ".world");
     }
 
     public boolean teleport(Player player){

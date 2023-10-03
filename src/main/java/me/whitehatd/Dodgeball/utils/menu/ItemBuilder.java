@@ -31,24 +31,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder damage(short damage){
-
-        Damageable meta = (Damageable) finalItem.getItemMeta();
-        meta.setDamage(damage);
-        finalItem.setItemMeta((ItemMeta) meta);
-
-        return this;
-    }
-
-    public ItemBuilder unbreakable(boolean bool){
-
-        ItemMeta meta = finalItem.getItemMeta();
-        meta.setUnbreakable(bool);
-        finalItem.setItemMeta(meta);
-
-        return this;
-    }
-
     public ItemBuilder setLore(List<String> toSet){
 
         if(lore == null)
@@ -62,44 +44,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setCustomModelData(int data){
-
-        ItemMeta meta = finalItem.getItemMeta();
-        meta.setCustomModelData(data);
-        finalItem.setItemMeta(meta);
-
-        return this;
-
-    }
-
-    public ItemBuilder hideAttributes(){
-        ItemMeta meta = finalItem.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        finalItem.setItemMeta(meta);
-
-        return this;
-    }
-
-    public ItemBuilder addLore(String string){
-
-        if(lore == null)
-            lore = new ArrayList<>();
-
-        lore.add(ChatColor.translateAlternateColorCodes('&', string));
-
-        return this;
-
-    }
-
-    public ItemBuilder addLore(List<String> list){
-
-        if(lore == null)
-            lore = new ArrayList<>();
-
-        list.forEach(this::addLore);
-
-        return this;
-    }
 
     public ItemStack build(){
         ItemMeta meta = finalItem.getItemMeta();

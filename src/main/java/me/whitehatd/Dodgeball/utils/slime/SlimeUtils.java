@@ -17,6 +17,7 @@ import org.bukkit.World;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -46,57 +47,6 @@ public class SlimeUtils {
         this.unloadWorld("world_nether");
         this.unloadWorld("world_the_end");
     }
-
-    public void importWorld(String worldName) {
-        String path = Bukkit.getWorldContainer().getAbsolutePath();
-        File worldDirectory = new File(path + File.separator + worldName);
-        try {
-            this.slimePlugin.importWorld(worldDirectory, worldName, this.slimeLoader);
-        } catch (WorldAlreadyExistsException | InvalidWorldException | WorldLoadedException | WorldTooBigException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            WorldData worldData = ConfigManager.getWorldConfig().getWorlds().get(worldName);
-            worldData.setReadOnly(true);
-        }
-    }
-
-    public void loadWorld(String worldName) {
-        WorldData worldData = ConfigManager.getWorldConfig().getWorlds().get(worldName);
-        SlimeWorld slimeWorld = null;
-        AtomicReference<SlimeWorld> slimeReference = new AtomicReference<>(null);
-        try {
-            slimeWorld = this.getSlimeWorld(worldName, worldData);
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            slimeReference.set(slimeWorld);
-            this.taskQueue.add(() -> this.slimePlugin.generateWorld(slimeReference.get()));
-        }
-    }
-
-    public SlimeWorld getSlimeWorld(String worldName, WorldData worldData) throws ExecutionException, InterruptedException {
-        try {
-            return this.slimePlugin.loadWorld(this.slimeLoader, worldName, worldData.isReadOnly(), worldData.toPropertyMap());
-        } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException | WorldInUseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void cloneWorld(String sourceWorld, String worldName) {
-        WorldData worldData = ConfigManager.getWorldConfig().getWorlds().get(sourceWorld);
-        SlimePropertyMap slimePropertyMap = worldData.toPropertyMap();
-        slimePropertyMap.setString(SlimeProperties.DIFFICULTY, "hard");
-        AtomicReference<SlimeWorld> slimeReference = new AtomicReference<>();
-        try {
-            slimeReference.set(this.slimePlugin.loadWorld(this.slimeLoader, sourceWorld, true, slimePropertyMap).clone(worldName, this.slimeLoader));
-        } catch (WorldAlreadyExistsException | IOException | UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException e) {
-            e.printStackTrace();
-        } finally {
-            this.taskQueue.add(() -> this.slimePlugin.generateWorld(slimeReference.get()));
-        }
-    }
-
     public void generateWorld(String worldName){
 
         SlimePropertyMap propertyMap = new SlimePropertyMap();
@@ -104,34 +54,14 @@ public class SlimeUtils {
         propertyMap.setValue(SlimeProperties.ALLOW_ANIMALS, false);
         propertyMap.setValue(SlimeProperties.ENVIRONMENT, "normal");
 
+        this.slimePlugin.asyncCreateEmptyWorld(this.slimeLoader, worldName, true, propertyMap)
+                .exceptionally(th -> {
+                    th.printStackTrace();
 
-            AtomicReference<SlimeWorld> slimeWorld = new AtomicReference<>();
-
-            try {
-                slimeWorld.set(this.slimePlugin.createEmptyWorld(this.slimeLoader, worldName, true, propertyMap));
-            } catch (WorldAlreadyExistsException | IOException worldAlreadyExistsException) {
-                worldAlreadyExistsException.printStackTrace();
-            } finally {
-                this.taskQueue.add(() -> this.slimePlugin.generateWorld(slimeWorld.get()));
-
-            }
-
-    }
-
-    public void deleteWorld(String worldName) {
-        WorldsConfig worldsConfig = ConfigManager.getWorldConfig();
-        try {
-            this.slimeLoader.deleteWorld(worldName);
-        } catch (UnknownWorldException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            worldsConfig.getWorlds().remove(worldName);
-        }
-    }
-
-    public boolean existsWorld(String worldName) {
-        World world = Bukkit.getWorld(worldName);
-        return world != null;
+                    return java.util.Optional.empty();
+                }).thenAccept(world -> {
+                    world.ifPresent(slimeWorld -> this.taskQueue.add(() -> this.slimePlugin.generateWorld(slimeWorld)));
+                });
     }
 
     public void unloadWorld(String worldName) {

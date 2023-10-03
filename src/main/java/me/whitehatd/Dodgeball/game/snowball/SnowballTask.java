@@ -10,10 +10,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Snowball;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SnowballTask extends BukkitRunnable {
 
@@ -26,8 +23,11 @@ public class SnowballTask extends BukkitRunnable {
     @Override
     public void run() {
         List<Snowball> toRemove = new ArrayList<>();
-        for (Snowball snowball : game.getSnowballManager().getSnowballs().keySet()) {
-            List<Location> oldLocations = game.getSnowballManager().getSnowballs().get(snowball);
+        for (UUID snowballUUID: game.getSnowballManager().getSnowballs().keySet()) {
+            Snowball snowball = (Snowball) Bukkit.getEntity(snowballUUID);
+            assert snowball != null;
+
+            List<Location> oldLocations = game.getSnowballManager().getSnowballs().get(snowballUUID);
             List<Location> reversedLocations = new ArrayList<>(oldLocations);
             Collections.reverse(reversedLocations);
 
@@ -35,7 +35,7 @@ public class SnowballTask extends BukkitRunnable {
 
             if (isSafeExtended(currentLocation)) {
                 oldLocations.add(currentLocation);
-                game.getSnowballManager().getSnowballs().put(snowball, oldLocations);
+                game.getSnowballManager().getSnowballs().put(snowball.getUniqueId(), oldLocations);
 
                 continue;
             }
@@ -60,7 +60,7 @@ public class SnowballTask extends BukkitRunnable {
 
         for(Snowball snowball : toRemove){
             snowball.remove();
-            game.getSnowballManager().getSnowballs().remove(snowball);
+            game.getSnowballManager().getSnowballs().remove(snowball.getUniqueId());
         }
 
     }

@@ -73,7 +73,7 @@ public class SnowballListener extends ListenerBase {
 
         List<Location> oldLocations = new ArrayList<>();
         oldLocations.add(snowball.getLocation());
-        game.getSnowballManager().getSnowballs().put(snowball, oldLocations);
+        game.getSnowballManager().getSnowballs().put(snowball.getUniqueId(), oldLocations);
     }
 
     @EventHandler
@@ -92,7 +92,7 @@ public class SnowballListener extends ListenerBase {
             if((game.getBlueTeam().containsKey(entity) && game.getBlueTeam().containsKey(player)) ||
                     (game.getRedTeam().containsKey(entity) && game.getRedTeam().containsKey(player))) {
 
-                game.getSnowballManager().getSnowballs().remove((Snowball)e.getEntity());
+                game.getSnowballManager().getSnowballs().remove(e.getEntity().getUniqueId());
                 e.setCancelled(true);
                 e.getEntity().remove();
 
@@ -134,7 +134,7 @@ public class SnowballListener extends ListenerBase {
                     .filter(dead -> !game.getAllPlayers().get(dead))
                     .forEach(dead -> dead.showPlayer(core, entity));
 
-            game.getSnowballManager().getSnowballs().remove((Snowball)e.getEntity());
+            game.getSnowballManager().getSnowballs().remove(e.getEntity().getUniqueId());
             e.setCancelled(true);
             e.getEntity().remove();
 
@@ -267,7 +267,7 @@ public class SnowballListener extends ListenerBase {
 
             //else entity must've hit a block
         } else {
-            game.getSnowballManager().getSnowballs().remove((Snowball)e.getEntity());
+            game.getSnowballManager().getSnowballs().remove(e.getEntity().getUniqueId());
             e.setCancelled(true);
             e.getEntity().remove();
 

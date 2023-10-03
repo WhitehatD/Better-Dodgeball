@@ -18,16 +18,6 @@ public class MiscUtil {
         return item;
     }
 
-    public boolean locationAreEqual(Location loc1, Location loc2) {
-
-        if (loc1.getBlockX() != loc2.getBlockX()) return false;
-        if (loc1.getBlockY() != loc2.getBlockY()) return false;
-        if (loc1.getBlockZ() != loc2.getBlockZ()) return false;
-
-        return true;
-
-    }
-
     public void heal(Player player){
         player.setHealth(20);
         player.setFoodLevel(20);

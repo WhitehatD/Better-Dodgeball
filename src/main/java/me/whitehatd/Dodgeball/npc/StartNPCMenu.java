@@ -20,8 +20,8 @@ public class StartNPCMenu extends Menu {
 
     private Menu availableGames;
 
-    public StartNPCMenu(Player player) {
-        super(Core.INSTANCE, 36, "&dSelect an option");
+    public StartNPCMenu(Core core) {
+        super(core, 36, "&dSelect an option");
 
         this
                 .setButton(0, 11,
@@ -50,7 +50,7 @@ public class StartNPCMenu extends Menu {
                                                             .build(),
                                                     e2 -> {
 
-                                                        Bukkit.getScheduler().runTaskLater(Core.INSTANCE, () -> {
+                                                        Bukkit.getScheduler().runTaskLater(core, () -> {
                                                             e2.getWhoClicked().openInventory(this.getInventory());
                                                         }, 2L);
                                                     }));

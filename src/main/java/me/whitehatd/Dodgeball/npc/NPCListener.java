@@ -14,6 +14,6 @@ public class NPCListener extends ListenerBase {
     @EventHandler
     public void onNPCClick(NPCRightClickEvent e) {
         if (e.getNPC().getUniqueId().equals(core.getNpcUtil().getStartNPCUUID()))
-            e.getClicker().openInventory(new StartNPCMenu(e.getClicker()).getInventory());
+            e.getClicker().openInventory(new StartNPCMenu(core).getInventory());
     }
 }

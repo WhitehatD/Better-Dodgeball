@@ -13,7 +13,7 @@ public class FakeSlimeLoader extends MongoLoader {
     }
 
     @Override
-    public void saveWorld(String worldName, byte[] serializedWorld, boolean lock) throws IOException {
+    public void saveWorld(String worldName, byte[] serializedWorld, boolean lock) {
         // EMPTY BODY SO THAT WORLDS DON'T GET SAVED!
     }
 }

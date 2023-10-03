@@ -20,9 +20,6 @@ import java.util.List;
 
 public class Core extends JavaPlugin {
 
-
-    public static Core INSTANCE;
-
     private ChatUtil chatUtil;
 
     private SlimePlugin slimePlugin;
@@ -34,7 +31,7 @@ public class Core extends JavaPlugin {
     private MiscUtil miscUtil;
     private SchematicUtil schematicUtil;
 
-
+    private static Core INSTANCE;
 
     @Override
     public void onEnable() {
@@ -45,7 +42,19 @@ public class Core extends JavaPlugin {
         this.chatUtil = new ChatUtil();
 
         slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
+        if(slimePlugin == null){
+            getChatUtil().message(Bukkit.getConsoleSender(), "&cNo SlimeWorldManager found! Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         slimeUtils = new SlimeUtils(this);
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            getChatUtil().message(Bukkit.getConsoleSender(), "&cNo PlaceholderAPI found! Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        new PAPIExpansion(this).register();
 
         this.miscUtil = new MiscUtil();
         this.npcUtil = new NPCUtil(this);
@@ -57,7 +66,7 @@ public class Core extends JavaPlugin {
 
         new GameTask(this).runTaskTimer(this, 2L, 2L);
 
-        new PAPIExpansion(this).register();
+
     }
 
     @Override
@@ -94,5 +103,9 @@ public class Core extends JavaPlugin {
 
     public SlimePlugin getSlimePlugin() {
         return slimePlugin;
+    }
+
+    public static Core getInstance() {
+        return INSTANCE;
     }
 }

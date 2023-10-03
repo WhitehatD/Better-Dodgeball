@@ -3,18 +3,19 @@ package me.whitehatd.Dodgeball.game.snowball;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.UUID;
 
-public class CooldownManager extends HashMap<Player, Long> {
+public class CooldownManager extends HashMap<UUID, Long> {
 
     public void set(Player player, int ms){
-        put(player, System.currentTimeMillis() + ms);
+        put(player.getUniqueId(), System.currentTimeMillis() + ms);
     }
 
     public boolean has(Player player){
-        if(!containsKey(player))
+        if(!containsKey(player.getUniqueId()))
             return false;
 
-        if(System.currentTimeMillis() >= get(player))
+        if(System.currentTimeMillis() >= get(player.getUniqueId()))
             return false;
 
         return true;

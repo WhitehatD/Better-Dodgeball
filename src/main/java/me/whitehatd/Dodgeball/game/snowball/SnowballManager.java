@@ -7,15 +7,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Snowball;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class SnowballManager {
 
     private final Game game;
-    private HashMap<Snowball, List<Location>> snowballs;
+    private HashMap<UUID, List<Location>> snowballs;
 
     public SnowballManager(Game game){
         this.game = game;
@@ -49,7 +46,7 @@ public class SnowballManager {
         }
     }
 
-    public HashMap<Snowball, List<Location>> getSnowballs() {
+    public HashMap<UUID, List<Location>> getSnowballs() {
         return snowballs;
     }
 }
