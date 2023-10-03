@@ -66,21 +66,15 @@ public class SnowballTask extends BukkitRunnable {
     }
 
     private boolean isSafeExtended(Location location){
-        if (game.getAreaManager().getExtendedBlueRegion().contains(
+        return game.getAreaManager().getExtendedBlueRegion().contains(
                 location.getBlockX(), location.getBlockZ()) ||
                 game.getAreaManager().getExtendedRedRegion().contains(
-                        location.getBlockX(), location.getBlockZ()))
-            return true;
-
-        return false;
+                        location.getBlockX(), location.getBlockZ());
     }
     private boolean isSafe(Location location){
-        if (game.getAreaManager().getBlueRegion().contains(
+        return game.getAreaManager().getBlueRegion().contains(
                 location.getBlockX(), location.getBlockZ()) ||
                 game.getAreaManager().getRedRegion().contains(
-                        location.getBlockX(), location.getBlockZ()))
-            return true;
-
-        return false;
+                        location.getBlockX(), location.getBlockZ());
     }
 }

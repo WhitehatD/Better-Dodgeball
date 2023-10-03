@@ -42,116 +42,27 @@ public class PlayerJoinLeaveListener extends ListenerBase {
         }
 
 
-        if(game.getBlueTeam().containsKey(e.getPlayer())) {
+        if(game.getBlueTeam().containsKey(e.getPlayer().getUniqueId())) {
 
-            game.getBlueTeam().remove(e.getPlayer());
+            game.getBlueTeam().remove(e.getPlayer().getUniqueId());
 
             game.getAllPlayers().keySet()
                     .forEach(all -> core.getChatUtil().message(
-                            all,
+                            Bukkit.getPlayer(all),
                             "&3" + e.getPlayer().getName() + " &eleft!"));
 
-            int blueLeft = game.getBlueTeam().keySet().stream().filter(target -> game.getBlueTeam().get(target)).toList().size();
-            if(blueLeft == 0) {
-                game.setState(GameState.ENDING);
-
-                game.getAllPlayers().keySet()
-                        .forEach(all -> {
-                            all.sendTitle(core.getChatUtil().toColor("&cRed team won!"), "");
-                            all.playSound(all.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.15f);
-                        });
-                final int[] fireworkCount = {0};
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if(fireworkCount[0] == 10)
-                            cancel();
-
-                        Location location = game.getSpawnpointManager().randomLocation(game.getAreaManager().getRedRegion(), true);
-
-                        Firework firework = game.getWorld().spawn(location, Firework.class);
-
-                        FireworkMeta fireworkMeta = firework.getFireworkMeta();
-                        FireworkEffect.Builder builder = FireworkEffect.builder();
-                        builder.withTrail().withFlicker().withColor(Color.RED).with(FireworkEffect.Type.BALL_LARGE);
-                        fireworkMeta.addEffect(builder.build());
-                        fireworkMeta.setPower(1);
-
-                        firework.setFireworkMeta(fireworkMeta);
-
-                        fireworkCount[0]++;
-                    }
-                }.runTaskTimer(core, 1L, 5L);
-
-                Bukkit.getScheduler().runTaskLater(game.getCore(), () -> {
-                    Set<Player> winners = game.getRedTeam().keySet();
-                    game.destroy();
-
-                    winners.forEach(red -> {
-                        for(String command: core.getConfig().getStringList("game.victory-commands"))
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", red.getName()));
-                    });
-
-                }, 20 * 6L);
-            }
+            core.getMiscUtil().checkLost(game, true);
 
         }
         else{
-            game.getRedTeam().remove(e.getPlayer());
+            game.getRedTeam().remove(e.getPlayer().getUniqueId());
 
             game.getAllPlayers().keySet()
                     .forEach(all -> core.getChatUtil().message(
-                            all,
+                            Bukkit.getPlayer(all),
                             "&c" + e.getPlayer().getName() + " &eleft!"));
 
-            int redLeft = game.getRedTeam().keySet().stream().filter(target -> game.getRedTeam().get(target)).toList().size();
-            if(redLeft == 0) {
-                game.setState(GameState.ENDING);
-
-                game.getAllPlayers().keySet()
-                        .forEach(all -> {
-                            all.sendTitle(core.getChatUtil().toColor("&3Blue team won!"), "");
-                            all.playSound(all.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.15f);
-                        });
-
-
-                final int[] fireworkCount = {0};
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if(fireworkCount[0] == 10)
-                            cancel();
-
-                        Location location = game.getSpawnpointManager().randomLocation(game.getAreaManager().getBlueRegion(), false);
-
-                        Firework firework = game.getWorld().spawn(location, Firework.class);
-
-                        FireworkMeta fireworkMeta = firework.getFireworkMeta();
-                        FireworkEffect.Builder builder = FireworkEffect.builder();
-                        builder.withTrail().withFlicker().withColor(Color.BLUE).with(FireworkEffect.Type.BALL_LARGE);
-                        fireworkMeta.addEffect(builder.build());
-                        fireworkMeta.setPower(1);
-
-                        firework.setFireworkMeta(fireworkMeta);
-
-                        fireworkCount[0]++;
-                    }
-                }.runTaskTimer(core, 1L, 5L);
-
-                Bukkit.getScheduler().runTaskLater(game.getCore(), () -> {
-                    Set<Player> winners = game.getBlueTeam().keySet();
-                    game.destroy();
-
-                    winners.forEach(blue -> {
-                        for(String command: core.getConfig().getStringList("game.victory-commands"))
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", blue.getName()));
-                    });
-
-
-                }, 20 * 6L);
-            }
+            core.getMiscUtil().checkLost(game, false);
         }
     }
 

@@ -57,7 +57,7 @@ public class PAPIExpansion extends PlaceholderExpansion {
             if(game == null)
                 return "Not in a game";
 
-            if(game.getRedTeam().containsKey((Player) player)){
+            if(game.getRedTeam().containsKey(player.getUniqueId())){
                 return game.getRedTeam().keySet().stream().filter(target -> game.getRedTeam().get(target)).toList().size() + "";
             } else return game.getRedTeam().keySet().stream().filter(target -> game.getBlueTeam().get(target)).toList().size() + "";
         }
@@ -67,7 +67,7 @@ public class PAPIExpansion extends PlaceholderExpansion {
             if(game == null)
                 return "Not in a game";
 
-            if(!game.getRedTeam().containsKey((Player) player)){
+            if(!game.getRedTeam().containsKey(player.getUniqueId())){
                 return game.getRedTeam().keySet().stream().filter(target -> game.getRedTeam().get(target)).toList().size() + "";
             } else return game.getRedTeam().keySet().stream().filter(target -> game.getBlueTeam().get(target)).toList().size() + "";
         }

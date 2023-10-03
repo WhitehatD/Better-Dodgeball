@@ -31,7 +31,7 @@ public class CancelGriefListener extends ListenerBase {
     public void onPickup(PlayerPickupItemEvent e){
         Game game = core.getGameManager().getGame(e.getPlayer());
         if(game == null) return;
-        if(game.getAllPlayers().get(e.getPlayer())) return;
+        if(game.getAllPlayers().get(e.getPlayer().getUniqueId())) return;
 
         e.setCancelled(true);
     }

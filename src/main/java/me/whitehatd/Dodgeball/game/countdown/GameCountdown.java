@@ -5,7 +5,10 @@ import me.whitehatd.Dodgeball.game.Game;
 import me.whitehatd.Dodgeball.game.GameState;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 public class GameCountdown extends Countdown{
 
@@ -25,7 +28,8 @@ public class GameCountdown extends Countdown{
         }
 
 
-        for (Player player : getGame().getAllPlayers().keySet()) {
+        for (UUID uuid : getGame().getAllPlayers().keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
 
             if (getSecondsLeft() == 0) {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR,

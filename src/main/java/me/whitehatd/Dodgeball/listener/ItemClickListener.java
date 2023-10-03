@@ -59,9 +59,7 @@ public class ItemClickListener extends ListenerBase {
             }
         } else {
             if(nbtItem.getString("usage").equals("leave")){
-                if(game.getBlueTeam().containsKey(player))
-                    game.removePlayerFromBlueTeam(player);
-                else game.removePlayerFromRedTeam(player);
+                game.removePlayerFromTeam(player, game.getRedTeam().containsKey(player.getUniqueId()));
             }
         }
     }

@@ -3,10 +3,12 @@ package me.whitehatd.Dodgeball.game.manager;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import me.whitehatd.Dodgeball.game.Game;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class AreaManager {
 
@@ -75,9 +77,10 @@ public class AreaManager {
     }
 
     public void checkTeamsInsideAreas(){
-        for(Player player : game.getBlueTeam().keySet()) {
+        for(UUID uuid : game.getBlueTeam().keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
             //if is dead
-            if(!game.getBlueTeam().get(player)) continue;
+            if(!game.getBlueTeam().get(uuid)) continue;
 
             Location location = player.getLocation();
 
@@ -87,9 +90,10 @@ public class AreaManager {
             }
         }
 
-        for(Player player : game.getRedTeam().keySet()) {
+        for(UUID uuid : game.getRedTeam().keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
             //if is dead
-            if(!game.getRedTeam().get(player)) continue;
+            if(!game.getRedTeam().get(uuid)) continue;
 
             Location location = player.getLocation();
 
@@ -99,9 +103,10 @@ public class AreaManager {
     }
 
     public void checkSpectatorsInsideArea(){
-        for(Player player : game.getAllPlayers().keySet()){
+        for(UUID uuid : game.getAllPlayers().keySet()){
+            Player player = Bukkit.getPlayer(uuid);
             //if is alive
-            if(game.getAllPlayers().get(player)) continue;
+            if(game.getAllPlayers().get(uuid)) continue;
 
             Location location = player.getLocation();
 

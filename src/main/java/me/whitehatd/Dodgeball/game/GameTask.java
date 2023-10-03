@@ -4,8 +4,11 @@ import me.whitehatd.Dodgeball.Core;
 import me.whitehatd.Dodgeball.game.countdown.GameCountdown;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.UUID;
 
 public class GameTask extends BukkitRunnable {
 
@@ -37,7 +40,8 @@ public class GameTask extends BukkitRunnable {
                         return;
                     }
 
-                    for(Player player : game.getAllPlayers().keySet()){
+                    for(UUID uuid : game.getAllPlayers().keySet()){
+                        Player player = Bukkit.getPlayer(uuid);
                         player.setFoodLevel(20);
 
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
@@ -50,7 +54,8 @@ public class GameTask extends BukkitRunnable {
                     game.getAreaManager().checkTeamsInsideAreas();
                     game.getAreaManager().checkSpectatorsInsideArea();
 
-                    for(Player player : game.getAllPlayers().keySet()) {
+                    for(UUID uuid : game.getAllPlayers().keySet()) {
+                        Player player = Bukkit.getPlayer(uuid);
                         player.setFoodLevel(20);
 
                         int blueLeft = game.getBlueTeam().keySet().stream().filter(target -> game.getBlueTeam().get(target)).toList().size();
@@ -63,7 +68,8 @@ public class GameTask extends BukkitRunnable {
                     }
                 }
                 case ENDING -> {
-                    for(Player player : game.getAllPlayers().keySet()) {
+                    for(UUID uuid : game.getAllPlayers().keySet()) {
+                        Player player = Bukkit.getPlayer(uuid);
                         player.setFoodLevel(20);
 
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR,

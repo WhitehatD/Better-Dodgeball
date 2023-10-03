@@ -24,17 +24,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.units.qual.C;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class Game {
 
     private final Core core;
-    private HashMap<Player, Boolean> redTeam, blueTeam;
-    private Player creator;
+    private HashMap<UUID, Boolean> redTeam, blueTeam;
+    private UUID creator;
     private final String worldName;
     private World world;
     private GameState state;
@@ -53,7 +50,7 @@ public class Game {
     public Game(Player creator, Core core) {
         this.core = core;
 
-        this.creator = creator;
+        this.creator = creator.getUniqueId();
 
         this.state = GameState.WAITING;
         this.redTeam = new HashMap<>();
@@ -110,9 +107,7 @@ public class Game {
 
                             this.hasRegisteredManagers = true;
 
-                            if(new Random().nextBoolean())
-                                addPlayerToBlueTeam(creator, true);
-                            else addPlayerToRedTeam(creator, true);
+                            addPlayerToTeam(creator, true, new Random().nextBoolean());
 
                         });
                     });
@@ -121,9 +116,14 @@ public class Game {
 
     }
 
-    public void addPlayerToBlueTeam(Player player, boolean creator){
-        blueTeam.put(player, true);
-        spawnpointManager.generateBlueSpawn(player);
+    public void addPlayerToTeam(Player player, boolean creator, boolean isRed){
+        if(isRed){
+            redTeam.put(player.getUniqueId(), true);
+            spawnpointManager.generateRedSpawn(player);
+        } else {
+            blueTeam.put(player.getUniqueId(), true);
+            spawnpointManager.generateBlueSpawn(player);
+        }
         player.teleport(spawnpointManager.getLobbyLocation());
         core.getMiscUtil().heal(player);
 
@@ -150,58 +150,29 @@ public class Game {
         }
     }
 
-    public void removePlayerFromBlueTeam(Player player){
-        blueTeam.remove(player);
-        spawnpointManager.deleteBlueSpawn(player);
-        FixedLocations.SPAWN.teleport(player);
-        core.getMiscUtil().heal(player);
-    }
-
-    public void addPlayerToRedTeam(Player player, boolean creator){
-        redTeam.put(player, true);
-        spawnpointManager.generateRedSpawn(player);
-        player.teleport(spawnpointManager.getLobbyLocation());
-        core.getMiscUtil().heal(player);
-
-        if(!creator) {
-            ItemStack leaveItem = new ItemBuilder(Material.RED_WOOL).setName("&cLeave the game").build();
-            NBTItem nbtItem = new NBTItem(leaveItem);
-            nbtItem.setString("usage", "leave");
-            leaveItem = nbtItem.getItem();
-
-            player.getInventory().setItem(8, leaveItem);
-        } else {
-            ItemStack destroyItem = new ItemBuilder(Material.BARRIER).setName("&cDestroy your game").build();
-            NBTItem nbtItem = new NBTItem(destroyItem);
-            nbtItem.setString("usage", "destroy");
-            destroyItem = nbtItem.getItem();
-
-            ItemStack forceStartItem = new ItemBuilder(Material.GREEN_WOOL).setName("&aForce start the game").build();
-            NBTItem forceNBT = new NBTItem(forceStartItem);
-            forceNBT.setString("usage", "start");
-            forceStartItem = forceNBT.getItem();
-
-            player.getInventory().setItem(0, forceStartItem);
-            player.getInventory().setItem(8, destroyItem);
+    public void removePlayerFromTeam(Player player, boolean isRed){
+        if(isRed){
+            redTeam.remove(player.getUniqueId());
+            spawnpointManager.deleteRedSpawn(player);
+        }else {
+            blueTeam.remove(player.getUniqueId());
+            spawnpointManager.deleteBlueSpawn(player);
         }
-    }
-
-    public void removePlayerFromRedTeam(Player player){
-        redTeam.remove(player);
-        spawnpointManager.deleteRedSpawn(player);
         FixedLocations.SPAWN.teleport(player);
         core.getMiscUtil().heal(player);
     }
 
     public void destroy(){
-        for(Player player : getAllPlayers().keySet()){
+        for(UUID uuid : getAllPlayers().keySet()){
+            Player player = Bukkit.getPlayer(uuid);
+
             FixedLocations.SPAWN.teleport(player);
             core.getMiscUtil().heal(player);
 
             Bukkit.getOnlinePlayers()
                     .forEach(online -> online.showPlayer(core, player));
 
-            if(!player.getUniqueId().equals(creator.getUniqueId()))
+            if(!player.getUniqueId().equals(creator))
                 core.getChatUtil().message(player, "&cYou were removed from the game");
             else core.getChatUtil().message(player, "&cThe game has been destroyed.");
         }
@@ -230,16 +201,16 @@ public class Game {
         this.state = state;
     }
 
-    public HashMap<Player, Boolean> getBlueTeam() {
+    public HashMap<UUID, Boolean> getBlueTeam() {
         return blueTeam;
     }
 
-    public HashMap<Player, Boolean> getRedTeam() {
+    public HashMap<UUID, Boolean> getRedTeam() {
         return redTeam;
     }
 
-    public HashMap<Player, Boolean> getAllPlayers(){
-        HashMap<Player, Boolean> copy = new HashMap<>();
+    public HashMap<UUID, Boolean> getAllPlayers(){
+        HashMap<UUID, Boolean> copy = new HashMap<>();
         copy.putAll(blueTeam);
         copy.putAll(redTeam);
 
@@ -259,7 +230,7 @@ public class Game {
     }
 
     public Player getCreator() {
-        return creator;
+        return Bukkit.getPlayer(creator);
     }
 
     public boolean isDestroyed() {

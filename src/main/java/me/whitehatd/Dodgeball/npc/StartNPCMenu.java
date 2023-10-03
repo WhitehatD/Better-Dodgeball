@@ -75,16 +75,14 @@ public class StartNPCMenu extends Menu {
                                                         e2 -> {
 
                                                             if(game.getRedTeam().size() > game.getBlueTeam().size())
-                                                                game.addPlayerToBlueTeam((Player) e2.getWhoClicked(), false);
+                                                                game.addPlayerToTeam((Player) e2.getWhoClicked(), false, false);
 
                                                             else if(game.getBlueTeam().size() > game.getRedTeam().size())
-                                                                game.addPlayerToRedTeam((Player) e2.getWhoClicked(), false);
+                                                                game.addPlayerToTeam((Player) e2.getWhoClicked(), false, true);
                                                             else {
                                                                 boolean nextToRed = new Random().nextBoolean();
 
-                                                                if(nextToRed)
-                                                                    game.addPlayerToRedTeam((Player) e2.getWhoClicked(), false);
-                                                                else game.addPlayerToBlueTeam((Player) e2.getWhoClicked(), false);
+                                                                game.addPlayerToTeam((Player) e2.getWhoClicked(), false, nextToRed);
                                                             }
 
                                                         })

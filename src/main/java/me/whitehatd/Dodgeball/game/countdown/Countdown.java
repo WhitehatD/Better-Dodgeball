@@ -70,15 +70,13 @@ public abstract class Countdown {
 
     public Sound getSound(){
         switch (secondsLeft) {
-            case 3:
-            case 2:
-            case 1:{
+            case 3, 2, 1 -> {
                 return Sound.BLOCK_NOTE_BLOCK_BASS;
             }
-            case 0: {
+            case 0 -> {
                 return Sound.BLOCK_NOTE_BLOCK_BELL;
             }
-            default: {
+            default -> {
                 return null;
             }
         }

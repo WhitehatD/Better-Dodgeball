@@ -37,23 +37,23 @@ public class SnowballListener extends ListenerBase {
     }
 
     @EventHandler
-    public void cancelDespawn(ItemDespawnEvent e){
-        if(!(e.getEntity() instanceof Snowball)) return;
+    public void cancelDespawn(ItemDespawnEvent e) {
+        if (!(e.getEntity() instanceof Snowball)) return;
         e.setCancelled(true);
     }
 
     @EventHandler
-    public void onShoot(PlayerInteractEvent e){
-        if(e.getHand() != EquipmentSlot.HAND) return;
+    public void onShoot(PlayerInteractEvent e) {
+        if (e.getHand() != EquipmentSlot.HAND) return;
 
-        if(e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if(e.getItem() == null) return;
-        if(e.getItem().getType() != Material.SNOWBALL) return;
+        if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (e.getItem() == null) return;
+        if (e.getItem().getType() != Material.SNOWBALL) return;
 
         Game game = core.getGameManager().getGame(e.getPlayer());
-        if(game == null) return;
+        if (game == null) return;
 
-        if(game.getCooldownManager().has(e.getPlayer())) {
+        if (game.getCooldownManager().has(e.getPlayer())) {
             e.setCancelled(true);
             return;
         }
@@ -61,15 +61,14 @@ public class SnowballListener extends ListenerBase {
     }
 
     @EventHandler
-    public void onLaunch(ProjectileLaunchEvent e){
-        if(!(e.getEntity().getShooter() instanceof Player)) return;
-        if(!(e.getEntity() instanceof Snowball)) return;
+    public void onLaunch(ProjectileLaunchEvent e) {
+        if (!(e.getEntity().getShooter() instanceof Player player)) return;
+        if (!(e.getEntity() instanceof Snowball)) return;
 
-        Player player = (Player) e.getEntity().getShooter();
         Game game = core.getGameManager().getGame(player);
-        if(game == null) return;
+        if (game == null) return;
 
-        Snowball snowball = (Snowball)e.getEntity();
+        Snowball snowball = (Snowball) e.getEntity();
 
         List<Location> oldLocations = new ArrayList<>();
         oldLocations.add(snowball.getLocation());
@@ -77,20 +76,19 @@ public class SnowballListener extends ListenerBase {
     }
 
     @EventHandler
-    public void onHit(ProjectileHitEvent e){
-        if(!(e.getEntity().getShooter() instanceof Player)) return;
-        if(!(e.getEntity() instanceof Snowball)) return;
+    public void onHit(ProjectileHitEvent e) {
+        if (!(e.getEntity().getShooter() instanceof Player player)) return;
+        if (!(e.getEntity() instanceof Snowball)) return;
 
-        Player player = (Player) e.getEntity().getShooter();
         Game game = core.getGameManager().getGame(player);
-        if(game == null) return;
+        if (game == null) return;
 
         Player entity = (Player) e.getHitEntity();
 
-        if(entity != null){
+        if (entity != null) {
             //if same team, nothing happens
-            if((game.getBlueTeam().containsKey(entity) && game.getBlueTeam().containsKey(player)) ||
-                    (game.getRedTeam().containsKey(entity) && game.getRedTeam().containsKey(player))) {
+            if ((game.getBlueTeam().containsKey(entity.getUniqueId()) && game.getBlueTeam().containsKey(player.getUniqueId())) ||
+                    (game.getRedTeam().containsKey(entity.getUniqueId()) && game.getRedTeam().containsKey(player.getUniqueId()))) {
 
                 game.getSnowballManager().getSnowballs().remove(e.getEntity().getUniqueId());
                 e.setCancelled(true);
@@ -127,11 +125,13 @@ public class SnowballListener extends ListenerBase {
             game.getAllPlayers().keySet()
                     .stream()
                     .filter(alive -> game.getAllPlayers().get(alive))
+                    .map(Bukkit::getPlayer)
                     .forEach(alive -> alive.hidePlayer(core, entity));
 
             game.getAllPlayers().keySet()
                     .stream()
                     .filter(dead -> !game.getAllPlayers().get(dead))
+                    .map(Bukkit::getPlayer)
                     .forEach(dead -> dead.showPlayer(core, entity));
 
             game.getSnowballManager().getSnowballs().remove(e.getEntity().getUniqueId());
@@ -152,118 +152,25 @@ public class SnowballListener extends ListenerBase {
             entity.getInventory().setItem(8, leaveItem);
 
             //no longer alive
-            if(game.getBlueTeam().containsKey(entity)) {
-                game.getBlueTeam().put(entity, false);
+            if (game.getBlueTeam().containsKey(entity.getUniqueId())) {
+                game.getBlueTeam().put(entity.getUniqueId(), false);
 
                 game.getAllPlayers().keySet()
                         .forEach(all -> core.getChatUtil().message(
-                                all,
+                                Bukkit.getPlayer(all),
                                 "&3" + entity.getName() + "&e was eliminated by &c" + player.getName() + "&e!"));
 
-                int blueLeft = game.getBlueTeam().keySet().stream().filter(target -> game.getBlueTeam().get(target)).toList().size();
-                if(blueLeft == 0) {
-                    game.setState(GameState.ENDING);
-
-                    game.getAllPlayers().keySet()
-                            .forEach(all -> {
-                                all.sendTitle(core.getChatUtil().toColor("&cRed team won!"), "");
-                                all.playSound(all.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.15f);
-                            });
-                    final int[] fireworkCount = {0};
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if(fireworkCount[0] == 10)
-                                cancel();
-
-                            Location location = game.getSpawnpointManager().randomLocation(game.getAreaManager().getRedRegion(), true);
-
-                            Firework firework = game.getWorld().spawn(location, Firework.class);
-
-                            FireworkMeta fireworkMeta = firework.getFireworkMeta();
-                            FireworkEffect.Builder builder = FireworkEffect.builder();
-                            builder.withTrail().withFlicker().withColor(Color.RED).with(FireworkEffect.Type.BALL_LARGE);
-                            fireworkMeta.addEffect(builder.build());
-                            fireworkMeta.setPower(1);
-
-                            firework.setFireworkMeta(fireworkMeta);
-
-                            fireworkCount[0]++;
-                        }
-                    }.runTaskTimer(core, 1L, 5L);
-
-                    Bukkit.getScheduler().runTaskLater(game.getCore(), () -> {
-                        Set<Player> winners = game.getRedTeam().keySet();
-                        game.destroy();
-
-                        winners.forEach(red -> {
-                            for(String command: core.getConfig().getStringList("game.victory-commands"))
-                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", red.getName()));
-                        });
-
-                    }, 20 * 6L);
-                }
-
-            }
-            else{
-                game.getRedTeam().put(entity, false);
+                core.getMiscUtil().checkLost(game, true);
+            } else {
+                game.getRedTeam().put(entity.getUniqueId(), false);
 
                 game.getAllPlayers().keySet()
                         .forEach(all -> core.getChatUtil().message(
-                                all,
+                                Bukkit.getPlayer(all),
                                 "&c" + entity.getName() + "&e was eliminated by &3" + player.getName() + "&e!"));
 
-                int redLeft = game.getRedTeam().keySet().stream().filter(target -> game.getRedTeam().get(target)).toList().size();
-                if(redLeft == 0) {
-                    game.setState(GameState.ENDING);
-
-                    game.getAllPlayers().keySet()
-                            .forEach(all -> {
-                                all.sendTitle(core.getChatUtil().toColor("&3Blue team won!"), "");
-                                all.playSound(all.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.15f);
-                            });
-
-
-                    final int[] fireworkCount = {0};
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if(fireworkCount[0] == 10)
-                                cancel();
-
-                            Location location = game.getSpawnpointManager().randomLocation(game.getAreaManager().getBlueRegion(), false);
-
-                            Firework firework = game.getWorld().spawn(location, Firework.class);
-
-                            FireworkMeta fireworkMeta = firework.getFireworkMeta();
-                            FireworkEffect.Builder builder = FireworkEffect.builder();
-                            builder.withTrail().withFlicker().withColor(Color.BLUE).with(FireworkEffect.Type.BALL_LARGE);
-                            fireworkMeta.addEffect(builder.build());
-                            fireworkMeta.setPower(1);
-
-                            firework.setFireworkMeta(fireworkMeta);
-
-                            fireworkCount[0]++;
-                        }
-                    }.runTaskTimer(core, 1L, 5L);
-
-                    Bukkit.getScheduler().runTaskLater(game.getCore(), () -> {
-                        Set<Player> winners = game.getBlueTeam().keySet();
-                        game.destroy();
-
-                        winners.forEach(blue -> {
-                                    for(String command: core.getConfig().getStringList("game.victory-commands"))
-                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", blue.getName()));
-                                });
-
-
-                    }, 20 * 6L);
-                }
+                game.getRedTeam().put(entity.getUniqueId(), true);
             }
-
-
 
             //else entity must've hit a block
         } else {

@@ -15,9 +15,6 @@ public class CooldownManager extends HashMap<UUID, Long> {
         if(!containsKey(player.getUniqueId()))
             return false;
 
-        if(System.currentTimeMillis() >= get(player.getUniqueId()))
-            return false;
-
-        return true;
+        return System.currentTimeMillis() < get(player.getUniqueId());
     }
 }

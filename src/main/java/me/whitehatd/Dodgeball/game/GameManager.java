@@ -38,7 +38,7 @@ public class GameManager {
     public Game getGame(Player player){
         return games
                 .stream()
-                .filter(game -> game.getAllPlayers().containsKey(player))
+                .filter(game -> game.getAllPlayers().containsKey(player.getUniqueId()))
                 .findFirst()
                 .orElse(null);
     }
